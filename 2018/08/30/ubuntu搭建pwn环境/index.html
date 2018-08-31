@@ -88,7 +88,7 @@
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="http://yoursite.com/2018/08/30/ubuntu搭建pwn环境/2.png">
 <meta property="og:image" content="http://yoursite.com/2018/08/30/ubuntu搭建pwn环境/1.png">
-<meta property="og:updated_time" content="2018-08-31T01:26:04.159Z">
+<meta property="og:updated_time" content="2018-08-31T07:13:55.710Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ubuntu搭建pwn环境">
 <meta name="twitter:description" content="前言这么着急就出新文章了？不错，工作的比较水，就写文章。二进制安全是我大学里面学习时间占比最高的，不过却是最差的，目前工作是web安全，逆向病毒分析也写了一些文章，看了不少书籍，唯独二进制安全我是什么也拿不出来。其实原因很简单，因为它难啊2333。所以我学了很长时间却还是没什么大的收获，所以我决定把这个二进制安全作为我博客的第一站，一方面有人运气好的话看到这个系列应该可以蛮快入门，二方面自己对之前">
@@ -323,7 +323,7 @@
 <h1 id="安装32位运行库"><a href="#安装32位运行库" class="headerlink" title="安装32位运行库"></a>安装32位运行库</h1><p>这个步骤建议是在最开始，也不知道放在这里有没有什么影响，第一步要是出错就先做这一步吧，我懒得改了。<br>因为二进制安全研究必须是64位系统，所以说必须要32位运行库才能编译出32位程序，包括很多功能都需要依赖32位运行库，所以建议安装。</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo dpkg --add-architecture i386</span><br><span class="line">sudo apt-get update</span><br><span class="line">sudo apt-get install zlib1g:i386 libstdc++6:i386 libc6:i386</span><br></pre></td></tr></table></figure>
 <h1 id="安装pwntools"><a href="#安装pwntools" class="headerlink" title="安装pwntools"></a>安装pwntools</h1><p>这个其实不是必须的，但是不装你是没法学，之前看到有个大神学长直接c语音写poc，都惊呆了。这个是真的强，但是现在好歹也是python大法好，所以说好不好谁用谁知道，你要图方便就直接<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install zio</span><br></pre></td></tr></table></figure></p>
-<p>直接安装黑科技zio，用法跟pwntools很像，但是反正我不会用。<br>不过出于好心我还是开个传送门吧，zio可以看看这个大佬博客里的文章：<br><a href="libc.pw">libc.pw</a><br>说回pwntools，安装可以说极其麻烦，而且还看人品。<br>现在可以试试一键安装<br>首先你是python2.7，linux应该都是预制了的<br>安装pip等必须的组件并升级pip：</p>
+<p>直接安装黑科技zio，用法跟pwntools很像，但是反正我不会用。<br>不过出于好心我还是开个传送门吧，zio可以看看这个大佬博客里的文章：<br><a href="http://libc.pw" target="_blank" rel="noopener">libc.pw</a><br>说回pwntools，安装可以说极其麻烦，而且还看人品。<br>现在可以试试一键安装<br>首先你是python2.7，linux应该都是预制了的<br>安装pip等必须的组件并升级pip：</p>
 <figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get install python2.7 python-pip python-dev git libssl-dev libffi-dev build-essential</span><br><span class="line">sudo pip install --upgrade pip</span><br></pre></td></tr></table></figure>
 <p>直接一把梭：<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">pip install --upgrade pwntools</span><br></pre></td></tr></table></figure></p>
 <p>反正我是不行，还是得一个一个慢慢来：</p>
